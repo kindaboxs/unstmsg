@@ -1,11 +1,24 @@
 generator client {
-  provider = "prisma-client"
-  output   = "../lib/generated/prisma"
+  provider     = "prisma-client"
+  output       = "../lib/generated/prisma"
   moduleFormat = "esm"
-  runtime = "nodejs"
+  runtime      = "nodejs"
 }
 
 datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
+}
+
+model UnsentMessage {
+  id      String @id @default(uuid())
+  from    String
+  to      String
+  content String
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@index([from])
+  @@index([to])
 }
