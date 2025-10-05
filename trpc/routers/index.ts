@@ -1,23 +1,8 @@
-import * as z from "zod";
-
-import {
-  createCallerFactory,
-  createTRPCRouter,
-  publicProcedure,
-} from "@/trpc/init";
+import { messagesRouter } from "@/features/messages/server/procedure";
+import { createCallerFactory, createTRPCRouter } from "@/trpc/init";
 
 export const appRouter = createTRPCRouter({
-  hello: publicProcedure
-    .input(
-      z.object({
-        text: z.string(),
-      })
-    )
-    .query(({ input }) => {
-      return {
-        greeting: `hello ${input.text}`,
-      };
-    }),
+  messages: messagesRouter,
 });
 
 // export type definition of API
