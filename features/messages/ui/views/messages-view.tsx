@@ -6,6 +6,8 @@ import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
 import { useInView } from "react-intersection-observer";
 
 import { MessageCard } from "@/features/messages/ui/components/message-card";
+import { MessageCardSkeleton } from "@/features/messages/ui/components/message-card-skeleton";
+import { MessageEmptyState } from "@/features/messages/ui/components/message-empty-state";
 import { useTRPC } from "@/trpc/client";
 
 export const MessagesView = () => {
@@ -22,6 +24,8 @@ export const MessagesView = () => {
       )
     );
 
+  const isEmptyMessage = data.pages[0].messages.length === 0;
+
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
       void fetchNextPage();
@@ -29,14 +33,35 @@ export const MessagesView = () => {
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
   return (
-    <>
-      <div ref={ref} className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
-        {data.pages.map((page) =>
-          page.messages.map((message) => (
-            <MessageCard key={message.id} message={message} />
-          ))
-        )}
+    <div className="mx-auto w-full max-w-4xl space-y-8">
+      {isEmptyMessage ? (
+        <div className="flex h-[calc(100vh-12rem)] items-center justify-center">
+          <MessageEmptyState />
+        </div>
+      ) : (
+        <div
+          ref={ref}
+          className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6"
+        >
+          {data.pages.map((page) =>
+            page.messages.map((message) => (
+              <MessageCard key={message.id} message={message} />
+            ))
+          )}
+        </div>
+      )}
+    </div>
+  );
+};
+
+export const MessagesViewSkeleton = () => {
+  return (
+    <div className="mx-auto w-full max-w-4xl space-y-8">
+      <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
+        {Array.from({ length: 10 }).map((_, index) => (
+          <MessageCardSkeleton key={index} />
+        ))}
       </div>
-    </>
+    </div>
   );
 };

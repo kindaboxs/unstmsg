@@ -1,6 +1,9 @@
 import { Suspense } from "react";
 
-import { MessagesView } from "@/features/messages/ui/views/messages-view";
+import {
+  MessagesView,
+  MessagesViewSkeleton,
+} from "@/features/messages/ui/views/messages-view";
 import { HydrateClient } from "@/lib/query/hydration";
 import { getQueryClient, trpc } from "@/trpc/server";
 
@@ -12,7 +15,7 @@ export default function MessagesPage() {
 
   return (
     <HydrateClient client={queryClient}>
-      <Suspense fallback={<div>Loading...</div>}>
+      <Suspense fallback={<MessagesViewSkeleton />}>
         <MessagesView />
       </Suspense>
     </HydrateClient>
