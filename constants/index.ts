@@ -1,0 +1,3 @@
+export const DEFAULT_LIMIT_MESSAGES = 10;
+export const DEFAULT_MAX_LIMIT_MESSAGES = 50;
+export const DEFAULT_MIN_LIMIT_MESSAGES = 1;
