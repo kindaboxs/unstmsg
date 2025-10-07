@@ -1,39 +1,14 @@
 "use client";
 
-import { useEffect } from "react";
-
-import { useSuspenseInfiniteQuery } from "@tanstack/react-query";
-import { useInView } from "react-intersection-observer";
-
-import { useMessageFilters } from "@/features/messages/hooks/use-message-filters";
+import { useMessages } from "@/features/messages/hooks/use-messages";
 import { MessageCard } from "@/features/messages/ui/components/message-card";
 import { MessageCardSkeleton } from "@/features/messages/ui/components/message-card-skeleton";
 import { MessageEmptyState } from "@/features/messages/ui/components/message-empty-state";
 import { MessageErrorState } from "@/features/messages/ui/components/message-error-state";
-import { useTRPC } from "@/trpc/client";
 
 export const MessagesView = () => {
-  const { ref, inView } = useInView();
-  const [filters] = useMessageFilters();
-
-  const trpc = useTRPC();
-  const { data, hasNextPage, isFetchingNextPage, fetchNextPage } =
-    useSuspenseInfiniteQuery(
-      trpc.messages.getAll.infiniteQueryOptions(
-        { ...filters },
-        {
-          getNextPageParam: (lastPage) => lastPage.nextCursor,
-        }
-      )
-    );
-
-  const isEmptyMessage = data.pages[0].messages.length === 0;
-
-  useEffect(() => {
-    if (inView && hasNextPage && !isFetchingNextPage) {
-      void fetchNextPage();
-    }
-  }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
+  const { data, isEmptyMessage, ref, hasNextPage, isFetchingNextPage } =
+    useMessages();
 
   return (
     <div className="mx-auto w-full max-w-4xl">
