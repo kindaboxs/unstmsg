@@ -7,7 +7,7 @@ import { useMessageFilters } from "@/features/messages/hooks/use-message-filters
 import { useTRPC } from "@/trpc/client";
 
 export const useMessages = () => {
-  const { ref, inView } = useInView();
+  const { ref, inView } = useInView({ fallbackInView: false });
   const [filters] = useMessageFilters();
 
   const trpc = useTRPC();
