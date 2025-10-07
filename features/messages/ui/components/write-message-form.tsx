@@ -1,9 +1,10 @@
 "use client";
 
 import { useState } from "react";
+import { useRouter } from "next/navigation";
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { useMutation } from "@tanstack/react-query";
+import { useMutation, useQueryClient } from "@tanstack/react-query";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 
@@ -31,7 +32,9 @@ export const WriteMessageForm = () => {
   const [isAnonymousFrom, setIsAnonymousFrom] = useState<boolean>(false);
   const [isAnonymousTo, setIsAnonymousTo] = useState<boolean>(false);
 
+  const router = useRouter();
   const trpc = useTRPC();
+  const queryClient = useQueryClient();
 
   const form = useForm<CreateMessageSchema>({
     resolver: zodResolver(createMessageSchema),
@@ -45,10 +48,15 @@ export const WriteMessageForm = () => {
 
   const createMessageMutation = useMutation(
     trpc.messages.create.mutationOptions({
-      onSuccess: () => {
+      onSuccess: async (data) => {
         setIsAnonymousFrom(false);
         setIsAnonymousTo(false);
         form.reset();
+
+        await queryClient.invalidateQueries({
+          queryKey: trpc.messages.getAll.queryKey(),
+        });
+        router.push(`/messages/${data.id}`);
 
         toast.success("Message has been created!");
       },
