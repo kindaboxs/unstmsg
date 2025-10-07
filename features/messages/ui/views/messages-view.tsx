@@ -9,6 +9,7 @@ import { useMessageFilters } from "@/features/messages/hooks/use-message-filters
 import { MessageCard } from "@/features/messages/ui/components/message-card";
 import { MessageCardSkeleton } from "@/features/messages/ui/components/message-card-skeleton";
 import { MessageEmptyState } from "@/features/messages/ui/components/message-empty-state";
+import { MessageErrorState } from "@/features/messages/ui/components/message-error-state";
 import { useTRPC } from "@/trpc/client";
 
 export const MessagesView = () => {
@@ -67,6 +68,16 @@ export const MessagesViewSkeleton = () => {
         {Array.from({ length: 10 }).map((_, index) => (
           <MessageCardSkeleton key={index} />
         ))}
+      </div>
+    </div>
+  );
+};
+
+export const MessagesViewError = () => {
+  return (
+    <div className="mx-auto w-full max-w-4xl">
+      <div className="flex h-[calc(100vh-12rem)] items-center justify-center">
+        <MessageErrorState />
       </div>
     </div>
   );
