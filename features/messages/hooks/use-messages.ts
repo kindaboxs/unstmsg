@@ -57,7 +57,11 @@ export const useMessages = () => {
           }),
         });
 
-        toast.info(`${newMessage.from} has created a message`, {
+        const isAnonymous = newMessage.from.toLowerCase() === "anonymous";
+        const message = isAnonymous
+          ? `A new anonymous has created a message`
+          : `${newMessage.from} has created a message`;
+        toast.info(message, {
           id: newMessage.id,
         });
       }
