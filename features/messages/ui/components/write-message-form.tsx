@@ -56,7 +56,7 @@ export const WriteMessageForm = () => {
         await queryClient.invalidateQueries({
           queryKey: trpc.messages.getAll.queryKey(),
         });
-        router.push(`messages/${data.id}`);
+        router.push(`/messages/${data.id}`);
 
         toast.success("Message has been created!");
       },
