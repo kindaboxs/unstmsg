@@ -6,6 +6,8 @@ import {
   DEFAULT_MIN_LIMIT_MESSAGES,
 } from "@/constants";
 import { createMessageSchema } from "@/features/messages/schemas";
+import { PUSHER_CHANNEL, PUSHER_EVENT } from "@/lib/pusher";
+import { pusherServer } from "@/lib/pusher/server";
 import { createTRPCRouter, publicProcedure } from "@/trpc/init";
 
 const getAllMessagesSchema = z.object({
@@ -70,6 +72,12 @@ export const messagesRouter = createTRPCRouter({
           ...input,
         },
       });
+
+      await pusherServer.trigger(
+        PUSHER_CHANNEL,
+        PUSHER_EVENT.NEW_MESSAGE,
+        newMessage
+      );
 
       return newMessage;
     }),
