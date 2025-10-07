@@ -1,4 +1,4 @@
-import { useEffect } from "react";
+import { useEffect, useRef } from "react";
 
 import {
   useQueryClient,
@@ -16,6 +16,7 @@ import { useTRPC } from "@/trpc/client";
 export const useMessages = () => {
   const { ref, inView } = useInView({ fallbackInView: false });
   const [filters] = useMessageFilters();
+  const filtersRef = useRef(filters);
 
   const queryClient = useQueryClient();
 
@@ -39,6 +40,11 @@ export const useMessages = () => {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
+  // Update filtersRef when filters change
+  useEffect(() => {
+    filtersRef.current = filters;
+  }, [filters]);
+
   useEffect(() => {
     const pusherChannel = pusherClient.subscribe(PUSHER_CHANNEL);
 
@@ -46,7 +52,9 @@ export const useMessages = () => {
       PUSHER_EVENT.NEW_MESSAGE,
       async (newMessage: MessageType) => {
         await queryClient.invalidateQueries({
-          queryKey: trpc.messages.getAll.infiniteQueryKey({ ...filters }),
+          queryKey: trpc.messages.getAll.infiniteQueryKey({
+            ...filtersRef.current,
+          }),
         });
 
         toast.info(`${newMessage.from} has created a message`, {
@@ -59,7 +67,7 @@ export const useMessages = () => {
       pusherChannel.unbind_all();
       pusherChannel.unsubscribe();
     };
-  }, [filters, queryClient, trpc.messages.getAll]);
+  }, [queryClient, trpc.messages.getAll]);
 
   return {
     data,
