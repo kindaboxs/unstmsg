@@ -20,7 +20,10 @@ export default async function MessagesPage({ searchParams }: Props) {
 
   const queryClient = getQueryClient();
   void queryClient.prefetchInfiniteQuery(
-    trpc.messages.getAll.infiniteQueryOptions({ ...params })
+    trpc.messages.getAll.infiniteQueryOptions(
+      { ...params },
+      { getNextPageParam: (lastPage) => lastPage.nextCursor }
+    )
   );
 
   return (

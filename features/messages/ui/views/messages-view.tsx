@@ -41,17 +41,21 @@ export const MessagesView = () => {
           <MessageEmptyState />
         </div>
       ) : (
-        <div
-          ref={ref}
-          className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6"
-        >
+        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 md:gap-6">
           {data.pages.map((page) =>
             page.messages.map((message) => (
               <MessageCard key={message.id} message={message} />
             ))
           )}
+
+          {isFetchingNextPage &&
+            Array.from({ length: 10 }).map((_, index) => (
+              <MessageCardSkeleton key={index} />
+            ))}
         </div>
       )}
+
+      {hasNextPage && <div ref={ref} className="col-span-full h-px" />}
     </div>
   );
 };
