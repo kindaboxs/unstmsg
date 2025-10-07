@@ -21,7 +21,8 @@ export const useMessages = () => {
       )
     );
 
-  const isEmptyMessage = data.pages[0].messages.length === 0;
+  const isEmptyMessage =
+    data.pages.flatMap((page) => page.messages).length === 0;
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
