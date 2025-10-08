@@ -21,19 +21,41 @@ interface SpotifyTokenResponse {
 }
 
 const getAccessToken = async () => {
-  const response = await fetch(SPOTIFY_TOKEN_URL, {
-    method: "POST",
-    headers: {
-      Authorization: `Basic ${buffer}`,
-      "Content-Type": "application/x-www-form-urlencoded",
-    },
-    body: new URLSearchParams({
-      grant_type: "client_credentials",
-    }),
-  });
+  try {
+    const response = await fetch(SPOTIFY_TOKEN_URL, {
+      method: "POST",
+      headers: {
+        Authorization: `Basic ${buffer}`,
+        "Content-Type": "application/x-www-form-urlencoded",
+      },
+      body: new URLSearchParams({
+        grant_type: "client_credentials",
+      }),
+    });
 
-  const data = await response.json();
-  return data as SpotifyTokenResponse;
+    if (!response.ok) {
+      let errorBody: string;
+      try {
+        errorBody = await response.text();
+      } catch {
+        errorBody = "Unable to read error response";
+      }
+
+      throw new Error(
+        `Spotify token request failed: ${response.status} ${response.statusText}. Response: ${errorBody}`
+      );
+    }
+
+    const data = await response.json();
+    return data as SpotifyTokenResponse;
+  } catch (error) {
+    if (error instanceof Error) {
+      throw error;
+    }
+    throw new Error(
+      `Network error while fetching Spotify access token: ${String(error)}`
+    );
+  }
 };
 
 const spotifyApi = createFetch({
@@ -80,7 +102,3 @@ export const spotifySearchTrack = async (query: string) => {
 
   return { data, error };
 };
-
-spotifySearchTrack("Istilah Kata")
-  .then((res) => console.log(res))
-  .catch((err) => console.log(err));

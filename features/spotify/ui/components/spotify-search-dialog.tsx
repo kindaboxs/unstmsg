@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { skipToken, useQuery } from "@tanstack/react-query";
 import { CheckIcon, ChevronsUpDownIcon, Loader2Icon } from "lucide-react";
@@ -34,6 +34,13 @@ export const SpotifySearchDialog = ({ onChange, value, disabled }: Props) => {
   const [openSearch, setOpenSearch] = useState<boolean>(false);
   const [searchQuery, setSearchQuery] = useState<string>("");
   const [pickedTrackId, setPickedTrackId] = useState<string>("");
+
+  // Sync pickedTrackId with incoming value prop
+  useEffect(() => {
+    if (pickedTrackId !== value) {
+      setPickedTrackId(value || "");
+    }
+  }, [value, pickedTrackId]);
 
   const trpc = useTRPC();
   const searchTracksData = useQuery(
