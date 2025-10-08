@@ -1,4 +1,4 @@
-import { useEffect, useRef } from "react";
+import { useCallback, useEffect } from "react";
 
 import {
   useQueryClient,
@@ -16,7 +16,6 @@ import { useTRPC } from "@/trpc/client";
 export const useMessages = () => {
   const { ref, inView } = useInView({ fallbackInView: false });
   const [filters] = useMessageFilters();
-  const filtersRef = useRef(filters);
 
   const queryClient = useQueryClient();
 
@@ -33,6 +32,9 @@ export const useMessages = () => {
 
   const isEmptyMessage =
     data.pages.flatMap((page) => page.messages).length === 0;
+  const messageQueryKey = useCallback(() => {
+    return trpc.messages.getAll.infiniteQueryKey();
+  }, [trpc.messages.getAll]);
 
   useEffect(() => {
     if (inView && hasNextPage && !isFetchingNextPage) {
@@ -40,38 +42,30 @@ export const useMessages = () => {
     }
   }, [inView, hasNextPage, isFetchingNextPage, fetchNextPage]);
 
-  // Update filtersRef when filters change
-  useEffect(() => {
-    filtersRef.current = filters;
-  }, [filters]);
-
   useEffect(() => {
     const pusherChannel = pusherClient.subscribe(PUSHER_CHANNEL);
 
-    pusherChannel.bind(
-      PUSHER_EVENT.NEW_MESSAGE,
-      async (newMessage: MessageType) => {
-        await queryClient.invalidateQueries({
-          queryKey: trpc.messages.getAll.infiniteQueryKey({
-            ...filtersRef.current,
-          }),
-        });
+    const handleNewMessage = (newMessage: MessageType) => {
+      void queryClient.invalidateQueries({
+        queryKey: messageQueryKey(),
+      });
 
-        const isAnonymous = newMessage.from.toLowerCase() === "anonymous";
-        const message = isAnonymous
-          ? `A new anonymous has created a message`
-          : `${newMessage.from} has created a message`;
-        toast.info(message, {
-          id: newMessage.id,
-        });
-      }
-    );
+      const isAnonymous = newMessage.from.toLowerCase() === "anonymous";
+      const message = isAnonymous
+        ? `A new anonymous has created a message`
+        : `${newMessage.from} has created a message`;
+      toast.info(message, {
+        id: newMessage.id,
+      });
+    };
+
+    pusherChannel.bind(PUSHER_EVENT.NEW_MESSAGE, handleNewMessage);
 
     return () => {
-      pusherChannel.unbind_all();
+      pusherChannel.unbind(PUSHER_EVENT.NEW_MESSAGE, handleNewMessage);
       pusherChannel.unsubscribe();
     };
-  }, [queryClient, trpc.messages.getAll]);
+  }, [messageQueryKey, queryClient]);
 
   return {
     data,
