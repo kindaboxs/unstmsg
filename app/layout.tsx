@@ -3,7 +3,7 @@ import type { Metadata } from "next";
 import { NuqsAdapter } from "nuqs/adapters/next/app";
 
 import { ThemeProvider } from "@/components/provider/theme-provider";
-import { geistMono, geistSans } from "@/lib/fonts";
+import { excalifont, geistMono, geistSans } from "@/lib/fonts";
 import { TRPCReactProvider } from "@/trpc/client";
 
 import "@/styles/globals.css";
@@ -23,7 +23,7 @@ export default function RootLayout({
   return (
     <html
       lang="en"
-      className={`${geistSans.variable} ${geistMono.variable}`}
+      className={`${geistSans.variable} ${geistMono.variable} ${excalifont.variable}`}
       suppressHydrationWarning
     >
       <body className="font-sans antialiased">
