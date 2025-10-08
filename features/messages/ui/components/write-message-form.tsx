@@ -26,6 +26,7 @@ import {
   createMessageSchema,
   type CreateMessageSchema,
 } from "@/features/messages/schemas";
+import { SpotifySearchDialog } from "@/features/spotify/ui/components/spotify-search-dialog";
 import { useTRPC } from "@/trpc/client";
 
 export const WriteMessageForm = () => {
@@ -40,6 +41,7 @@ export const WriteMessageForm = () => {
     defaultValues: {
       from: "",
       to: "",
+      trackId: "",
       content: "",
     },
     mode: "onChange",
@@ -149,6 +151,18 @@ export const WriteMessageForm = () => {
                   />
                   <Label htmlFor="anonymousTo">To someone</Label>
                 </div>
+                <FormMessage />
+              </FormItem>
+            )}
+          />
+
+          <FormField
+            control={form.control}
+            name="trackId"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Track / Song</FormLabel>
+                <SpotifySearchDialog {...field} />
                 <FormMessage />
               </FormItem>
             )}
