@@ -1,5 +1,7 @@
 "use client";
 
+import Link from "next/link";
+
 import { useQuery } from "@tanstack/react-query";
 import { formatDistance } from "date-fns";
 
@@ -36,7 +38,13 @@ export const MessageCard = ({ className, props, message }: Props) => {
   );
 
   return (
-    <Card {...props} className={cn("gap-4 py-4", className)}>
+    <Card
+      {...props}
+      className={cn(
+        "gap-4 py-4 transition-all duration-500 ease-in-out hover:scale-[1.025]",
+        className
+      )}
+    >
       <CardHeader className="px-4">
         <CardTitle>
           <Badge variant="secondary" className="font-semibold">
@@ -51,11 +59,13 @@ export const MessageCard = ({ className, props, message }: Props) => {
         </CardDescription>
       </CardHeader>
 
-      <CardContent className="px-4">
-        <p className="font-excalifont text-lg leading-6 text-pretty break-words">
-          {truncateText(message.content, 100)}
-        </p>
-      </CardContent>
+      <Link href={`/messages/${message.id}`}>
+        <CardContent className="h-[5rem] px-4">
+          <p className="font-excalifont text-lg leading-6 text-pretty break-words">
+            {truncateText(message.content, 100)}
+          </p>
+        </CardContent>
+      </Link>
 
       {isLoading ? (
         <CardFooter className="w-full px-4">
@@ -89,7 +99,7 @@ export const MessageCard = ({ className, props, message }: Props) => {
               </p>
             </div>
 
-            <div className="ml-auto size-8 shrink-0">
+            <div className="ml-auto size-6 shrink-0">
               <svg
                 role="img"
                 viewBox="0 0 24 24"
