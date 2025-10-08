@@ -1,8 +1,10 @@
 import { messagesRouter } from "@/features/messages/server/procedure";
+import { spotifyRouter } from "@/features/spotify/server/procedure";
 import { createCallerFactory, createTRPCRouter } from "@/trpc/init";
 
 export const appRouter = createTRPCRouter({
   messages: messagesRouter,
+  spotify: spotifyRouter,
 });
 
 // export type definition of API
