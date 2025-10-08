@@ -20,7 +20,18 @@ interface SpotifyTokenResponse {
   expires_in: number;
 }
 
-const getAccessToken = async () => {
+// Token cache with expiration
+interface TokenCache {
+  token: string;
+  expiresAt: number;
+}
+
+let tokenCache: TokenCache | null = null;
+
+// Safety buffer: refresh token 5 minutes before expiry
+const TOKEN_REFRESH_BUFFER = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+const getFreshAccessToken = async () => {
   try {
     const response = await fetch(SPOTIFY_TOKEN_URL, {
       method: "POST",
@@ -47,6 +58,15 @@ const getAccessToken = async () => {
     }
 
     const data = await response.json();
+
+    // Cache the token with expiration time
+    const expiresAt =
+      Date.now() + data.expires_in * 1000 - TOKEN_REFRESH_BUFFER;
+    tokenCache = {
+      token: data.access_token,
+      expiresAt,
+    };
+
     return data as SpotifyTokenResponse;
   } catch (error) {
     if (error instanceof Error) {
@@ -56,6 +76,23 @@ const getAccessToken = async () => {
       `Network error while fetching Spotify access token: ${String(error)}`
     );
   }
+};
+
+// Check if cached token is still valid
+const isTokenValid = (cache: TokenCache | null): cache is TokenCache => {
+  return cache !== null && Date.now() < cache.expiresAt;
+};
+
+// Get a valid access token (from cache or fresh)
+const getAccessToken = async (): Promise<{ access_token: string }> => {
+  // Return cached token if still valid
+  if (isTokenValid(tokenCache)) {
+    return { access_token: tokenCache.token };
+  }
+
+  // Fetch fresh token and cache it
+  const tokenData = await getFreshAccessToken();
+  return { access_token: tokenData.access_token };
 };
 
 const spotifyApi = createFetch({
